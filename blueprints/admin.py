@@ -20,10 +20,10 @@ admin = Blueprint('admin', __name__)
 async def home():
     """Render the homepage of guweb's admin panel."""
     if not 'authenticated' in session:
-        return await flash('error', 'Please login first.', 'login')
+        return await flash('error', 'Por favor, inicie sesión primero.', 'login')
 
     if not session['user_data']['is_staff']:
-        return await flash('error', f'You have insufficient privileges.', 'home')
+        return await flash('error', f'No tiene suficientes privilegios.', 'home')
 
     # fetch data from database
     dash_data = await glob.db.fetch(

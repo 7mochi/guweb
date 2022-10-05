@@ -10,7 +10,7 @@
 <div class="main-block is-marginless is-paddingless is-auth">
   <div class="columns is-reset is-weeb">
     <div class="column title-block">
-      <h1 class="title" id="regtitle">Login</h1>
+      <h1 class="title" id="regtitle">Inicio de sesión</h1>
     </div>
   </div>
   <div class="columns is-reset flex-lcenter is-block">
@@ -18,16 +18,16 @@
      <div class="content">
     <form action="/login" method="post" class="form-content">
       <div class="field">
-        <label for="user" class="label">Username</label>
+        <label for="user" class="label">Nombre de usuario</label>
         <div class="control has-icons-left">
           <input id="user" type="text" name="username" placeholder="Username" class="input" autocomplete="username" required>
           <span class="icon is-small is-left">
-            <i class="fa fa-envelope"></i>
+            <i class="fa fa-user"></i>
           </span>
         </div>
       </div>
       <div class="field">
-        <label for="pass" class="label">Password</label>
+        <label for="pass" class="label">Clave</label>
         <div class="control has-icons-left">
           <input id="pass" type="password" name="password" placeholder="Password" class="input" autocomplete="current-password" required>
           <span class="icon is-small is-left">
@@ -37,19 +37,20 @@
       </div>
       <div class="mt-5"></div>
       <div class="dialog">
-        Don't have an account?
+        ¿No tienes una cuenta?
         <a href="/register">
-          Register
+          ¡Únete a {{ appName() }}!
         </a>
       </div>
       <div class="field flex-vcenter">
         <div class="buttons">
           <button type="submit" class="button is-primary">
-            Login
+            Iniciar sesión
           </button>
-          <a href="/forgot" class="button is-info"> <!-- will probably have paths "/forgot/username" and "/forgot/password" -->
-            Forgot login?
-          </a>
+          <!-- will probably have paths "/forgot/username" and "/forgot/password" -->
+          <!--<a href="/forgot" class="button is-info"> 
+            ¿Olvidaste tu contraseña?
+          </a>-->
         </div>
       </div>
     </form></div>

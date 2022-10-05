@@ -3,9 +3,9 @@
 .gulag-avatar {
   background-image: url("/static/images/pippi.png");
   background-repeat: no-repeat;
-  /*     available avatar widths & heights      */
-  /* gulag.png:   width: 512px; height: 363px;  */
-  /* pippi.png:   width: 372px; height: 432px;  */
+  /*     available avatar widths & heights       */
+  /* gulag.png:   width: 512px; height: 363px;   */
+  /* pippi.png:   width: 372px; height: 432px;   */
   width: 365px;
   height: 579px;
   left: 50px;

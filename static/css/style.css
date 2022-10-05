@@ -17,6 +17,7 @@ body {
 html {
   position: relative;
   min-height: 100%;
+  --main: 230; /* Change main colors of the website (HSL value) */
 }
 
 .footer {
