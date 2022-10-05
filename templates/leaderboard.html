@@ -36,7 +36,7 @@
                 <i class="mode-icon mode-mania"></i><span class="modetext"> osu!mania</span>
             </a>
         </div>
-        <div class="banner-text">Leaderboard</div>
+        <div class="banner-text">Clasificaciones</div>
         <div class="selector">
             <div class="left">
                 <a class="simple-banner-switch" v-bind:class="{ 'active': sort === 'pp' }"
@@ -64,11 +64,11 @@
                             <th class="t-heading t-heading--main"></th>
                             <th v-if="sort == 'pp' || sort == 'rscore'" class="t-heading table--selected">
                                 <% (sort=='pp' ? "PP" : "" ) %>
-                                    <% (sort=='rscore' ? "Score" : "" ) %>
+                                    <% (sort=='rscore' ? "Puntuación" : "" ) %>
                             </th>
-                            <th class="t-heading"> Accuracy </th>
-                            <th class="t-heading"> Playcount </th>
-                            <th class="t-heading"> Max Combo </th>
+                            <th class="t-heading"> Precisión </th>
+                            <th class="t-heading"> Conteo de jugadas </th>
+                            <th class="t-heading"> Combo max. </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -106,7 +106,7 @@
             </div>
             <div v-else>
                 <div class="text-center">
-                    there are no players to display!
+                    No hay jugadores que mostrar
                 </div>
             </div>
         </div>

@@ -35,7 +35,7 @@ def login_required(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
         if not session:
-            return await flash('error', 'You must be logged in to access that page.', 'login')
+            return await flash('error', 'Debe iniciar sesión para acceder a esa página.', 'login')
         return await func(*args, **kwargs)
     return wrapper
 
@@ -63,7 +63,7 @@ async def settings_profile_post():
     new_email = form.get('email', type=str)
 
     if new_name is None or new_email is None:
-        return await flash('error', 'Invalid parameters.', 'home')
+        return await flash('error', 'Parámetros inválidos.', 'home')
 
     old_name = session['user_data']['name']
     old_email = session['user_data']['email']
@@ -73,11 +73,11 @@ async def settings_profile_post():
         new_name == old_name and
         new_email == old_email
     ):
-        return await flash('error', 'No changes have been made.', 'settings/profile')
+        return await flash('error', 'No se han realizado cambios.', 'settings/profile')
 
     if new_name != old_name:
         if not session['user_data']['is_donator']:
-            return await flash('error', 'Username changes are currently a supporter perk.', 'settings/profile')
+            return await flash('error', 'Los cambios de nombre de usuario son por el momento una ventaja para los colaboradores.', 'settings/profile')
 
         # Usernames must:
         # - be within 2-15 characters in length
@@ -85,16 +85,16 @@ async def settings_profile_post():
         # - not be in the config's `disallowed_names` list
         # - not already be taken by another player
         if not regexes.username.match(new_name):
-            return await flash('error', 'Your new username syntax is invalid.', 'settings/profile')
+            return await flash('error', 'La sintaxis de su nuevo nombre de usuario no es valida.', 'settings/profile')
 
         if '_' in new_name and ' ' in new_name:
-            return await flash('error', 'Your new username may contain "_" or " ", but not both.', 'settings/profile')
+            return await flash('error', 'Su nombre de usuario puede contener "_" o " ", pero no ambos.', 'settings/profile')
 
         if new_name in glob.config.disallowed_names:
-            return await flash('error', "Your new username isn't allowed; pick another.", 'settings/profile')
+            return await flash('error', "Su nombre de usuario no está permitido, eliga otro.", 'settings/profile')
 
         if await glob.db.fetch('SELECT 1 FROM users WHERE name = %s', [new_name]):
-            return await flash('error', 'Your new username already taken by another user.', 'settings/profile')
+            return await flash('error', 'Su nombre de usuario ya ha sido tomado por otro usuario.', 'settings/profile')
 
         safe_name = utils.get_safe_name(new_name)
 
@@ -111,10 +111,10 @@ async def settings_profile_post():
         # - match the regex `^[^@\s]{1,200}@[^@\s\.]{1,30}\.[^@\.\s]{1,24}$`
         # - not already be taken by another player
         if not regexes.email.match(new_email):
-            return await flash('error', 'Your new email syntax is invalid.', 'settings/profile')
+            return await flash('error', 'La sintaxis de su nuevo correo electrónico no es valida.', 'settings/profile')
 
         if await glob.db.fetch('SELECT 1 FROM users WHERE email = %s', [new_email]):
-            return await flash('error', 'Your new email already taken by another user.', 'settings/profile')
+            return await flash('error', 'Su nuevo correo electrónico ya ha sido tomado por otro usuario.', 'settings/profile')
 
         # email change successful
         await glob.db.execute(
@@ -127,7 +127,7 @@ async def settings_profile_post():
     # logout
     session.pop('authenticated', None)
     session.pop('user_data', None)
-    return await flash('success', 'Your username/email have been changed! Please login again.', 'login')
+    return await flash('success', 'Su nombre de usuario/correo electrónico ha sido cambiado. Por favor, inicie sesión de nuevo.', 'login')
 
 @frontend.route('/settings/avatar')
 @login_required
@@ -145,13 +145,13 @@ async def settings_avatar_post():
 
     # no file uploaded; deny post
     if avatar is None or not avatar.filename:
-        return await flash('error', 'No image was selected!', 'settings/avatar')
+        return await flash('error', 'No se ha seleccionado ninguna imagen.', 'settings/avatar')
 
     filename, file_extension = os.path.splitext(avatar.filename.lower())
 
     # bad file extension; deny post
     if not file_extension in ALLOWED_EXTENSIONS:
-        return await flash('error', 'The image you select must be either a .JPG, .JPEG, or .PNG file!', 'settings/avatar')
+        return await flash('error', 'La imagen que seleccione debe ser un archivo .JPG, .JPEG, o .PNG', 'settings/avatar')
 
     # remove old avatars
     for fx in ALLOWED_EXTENSIONS:
@@ -164,7 +164,7 @@ async def settings_avatar_post():
     # avatar change success
     pilavatar = utils.crop_image(pilavatar)
     pilavatar.save(os.path.join(AVATARS_PATH, f'{session["user_data"]["id"]}{file_extension.lower()}'))
-    return await flash('success', 'Your avatar has been successfully changed!', 'settings/avatar')
+    return await flash('success', 'Su avatar ha sido cambiado con éxito.', 'settings/avatar')
 
 @frontend.route('/settings/custom')
 @login_required
@@ -182,12 +182,12 @@ async def settings_custom_post():
 
     # no file uploaded; deny post
     if banner is None and background is None:
-        return await flash_with_customizations('error', 'No image was selected!', 'settings/custom')
+        return await flash_with_customizations('error', 'No se ha seleccionado ninguna imagen.', 'settings/custom')
 
     if banner is not None and banner.filename:
         _, file_extension = os.path.splitext(banner.filename.lower())
         if not file_extension in ALLOWED_EXTENSIONS:
-            return await flash_with_customizations('error', f'The banner you select must be either a .JPG, .JPEG, .PNG or .GIF file!', 'settings/custom')
+            return await flash_with_customizations('error', f'El banner que seleccione debe de ser un archivo .JPG, .JPEG, .PNG o .GIF', 'settings/custom')
 
         banner_file_no_ext = os.path.join(f'.data/banners', f'{session["user_data"]["id"]}')
 
@@ -202,7 +202,7 @@ async def settings_custom_post():
     if background is not None and background.filename:
         _, file_extension = os.path.splitext(background.filename.lower())
         if not file_extension in ALLOWED_EXTENSIONS:
-            return await flash_with_customizations('error', f'The background you select must be either a .JPG, .JPEG, .PNG or .GIF file!', 'settings/custom')
+            return await flash_with_customizations('error', f'El fondo de perfil que seleccione debe de ser un archivo .JPG, .JPEG, .PNG o .GIF', 'settings/custom')
 
         background_file_no_ext = os.path.join(f'.data/backgrounds', f'{session["user_data"]["id"]}')
 
@@ -214,7 +214,7 @@ async def settings_custom_post():
 
         await background.save(f'{background_file_no_ext}{file_extension}')
 
-    return await flash_with_customizations('success', 'Your customisation has been successfully changed!', 'settings/custom')
+    return await flash_with_customizations('success', 'Su customización ha sido cambiada con éxito.', 'settings/custom')
 
 
 @frontend.route('/settings/password')
@@ -232,24 +232,24 @@ async def settings_password_post():
 
     # new password and repeat password don't match; deny post
     if new_password != repeat_password:
-        return await flash('error', "Your new password doesn't match your repeated password!", 'settings/password')
+        return await flash('error', "Sus nuevas claves no coinciden.", 'settings/password')
 
     # new password and old password match; deny post
     if old_password == new_password:
-        return await flash('error', 'Your new password cannot be the same as your old password!', 'settings/password')
+        return await flash('error', 'Su nueva clave no puede ser la misma que su antigua clave.', 'settings/password')
 
     # Passwords must:
     # - be within 8-32 characters in length
     # - have more than 3 unique characters
     # - not be in the config's `disallowed_passwords` list
     if not 8 < len(new_password) <= 32:
-        return await flash('error', 'Your new password must be 8-32 characters in length.', 'settings/password')
+        return await flash('error', 'Su nueva clave debe tener entre 8 y 32 caracteres.', 'settings/password')
 
     if len(set(new_password)) <= 3:
-        return await flash('error', 'Your new password must have more than 3 unique characters.', 'settings/password')
+        return await flash('error', 'Su nueva clave debe tener más de 3 caracteres únicos.', 'settings/password')
 
     if new_password.lower() in glob.config.disallowed_passwords:
-        return await flash('error', 'Your new password was deemed too simple.', 'settings/password')
+        return await flash('error', 'Su nueva clave fue considerada demasiado simple.', 'settings/password')
 
     # cache and other password related information
     bcrypt_cache = glob.cache['bcrypt']
@@ -268,12 +268,12 @@ async def settings_password_post():
         if pw_md5 != bcrypt_cache[pw_bcrypt]: # ~0.1ms
             if glob.config.debug:
                 log(f"{session['user_data']['name']}'s change pw failed - pw incorrect.", Ansi.LYELLOW)
-            return await flash('error', 'Your old password is incorrect.', 'settings/password')
+            return await flash('error', 'Su antigua clave es incorrecta.', 'settings/password')
     else: # ~200ms
         if not bcrypt.checkpw(pw_md5, pw_bcrypt):
             if glob.config.debug:
                 log(f"{session['user_data']['name']}'s change pw failed - pw incorrect.", Ansi.LYELLOW)
-            return await flash('error', 'Your old password is incorrect.', 'settings/password')
+            return await flash('error', 'Su antigua clave es incorrecta.', 'settings/password')
 
     # remove old password from cache
     if pw_bcrypt in bcrypt_cache:
@@ -295,7 +295,7 @@ async def settings_password_post():
     # logout
     session.pop('authenticated', None)
     session.pop('user_data', None)
-    return await flash('success', 'Your password has been changed! Please log in again.', 'login')
+    return await flash('success', 'Su clave ha sido cambiada. Por favor, inicie sesión de nuevo.', 'login')
 
 
 @frontend.route('/u/<id>')
@@ -339,14 +339,14 @@ async def leaderboard(mode='std', sort='pp', mods='vn'):
 @frontend.route('/login')
 async def login():
     if 'authenticated' in session:
-        return await flash('error', "You're already logged in!", 'home')
+        return await flash('error', "Ya ha iniciado sesión.", 'home')
 
     return await render_template('login.html')
 
 @frontend.route('/login', methods=['POST'])
 async def login_post():
     if 'authenticated' in session:
-        return await flash('error', "You're already logged in!", 'home')
+        return await flash('error', "Ya ha iniciado sesión.", 'home')
 
     if glob.config.debug:
         login_time = time.time_ns()
@@ -356,7 +356,7 @@ async def login_post():
     passwd_txt = form.get('password', type=str)
 
     if username is None or passwd_txt is None:
-        return await flash('error', 'Invalid parameters.', 'home')
+        return await flash('error', 'Parámetros inválidos.', 'home')
 
     # check if account exists
     user_info = await glob.db.fetch(
@@ -372,7 +372,7 @@ async def login_post():
     if not user_info or user_info['id'] == 1:
         if glob.config.debug:
             log(f"{username}'s login failed - account doesn't exist.", Ansi.LYELLOW)
-        return await flash('error', 'Account does not exist.', 'login')
+        return await flash('error', 'La cuenta no existe.', 'login')
 
     # cache and other related password information
     bcrypt_cache = glob.cache['bcrypt']
@@ -385,12 +385,12 @@ async def login_post():
         if pw_md5 != bcrypt_cache[pw_bcrypt]: # ~0.1ms
             if glob.config.debug:
                 log(f"{username}'s login failed - pw incorrect.", Ansi.LYELLOW)
-            return await flash('error', 'Password is incorrect.', 'login')
+            return await flash('error', 'La clave es incorrecta.', 'login')
     else: # ~200ms
         if not bcrypt.checkpw(pw_md5, pw_bcrypt):
             if glob.config.debug:
                 log(f"{username}'s login failed - pw incorrect.", Ansi.LYELLOW)
-            return await flash('error', 'Password is incorrect.', 'login')
+            return await flash('error', 'La clave es incorrecta.', 'login')
 
         # login successful; cache password for next login
         bcrypt_cache[pw_bcrypt] = pw_md5
@@ -405,7 +405,7 @@ async def login_post():
     if not user_info['priv'] & Privileges.Normal:
         if glob.config.debug:
             log(f"{username}'s login failed - banned.", Ansi.RED)
-        return await flash('error', 'Your account is restricted. You are not allowed to log in.', 'login')
+        return await flash('error', 'Su cuenta está restringida. No se le permite iniciar sesión.', 'login')
 
     # login successful; store session data
     if glob.config.debug:
@@ -426,25 +426,25 @@ async def login_post():
         login_time = (time.time_ns() - login_time) / 1e6
         log(f'Login took {login_time:.2f}ms!', Ansi.LYELLOW)
 
-    return await flash('success', f'Hey, welcome back {username}!', 'home')
+    return await flash('success', f'¡Bienvenido de vuelta {username}!', 'home')
 
 @frontend.route('/register')
 async def register():
     if 'authenticated' in session:
-        return await flash('error', "You're already logged in.", 'home')
+        return await flash('error', "Ya ha iniciado sesión.", 'home')
 
     if not glob.config.registration:
-        return await flash('error', 'Registrations are currently disabled.', 'home')
+        return await flash('error', 'Los registros se encuentran actualmente deshabilitados.', 'home')
 
     return await render_template('register.html')
 
 @frontend.route('/register', methods=['POST'])
 async def register_post():
     if 'authenticated' in session:
-        return await flash('error', "You're already logged in.", 'home')
+        return await flash('error', "Ya ha iniciado sesión.", 'home')
 
     if not glob.config.registration:
-        return await flash('error', 'Registrations are currently disabled.', 'home')
+        return await flash('error', 'Los registros se encuentran actualmente deshabilitados.', 'home')
 
     form = await request.form
     username = form.get('username', type=str)
@@ -452,7 +452,7 @@ async def register_post():
     passwd_txt = form.get('password', type=str)
 
     if username is None or email is None or passwd_txt is None:
-        return await flash('error', 'Invalid parameters.', 'home')
+        return await flash('error', 'Parámetros inválidos.', 'home')
 
     if glob.config.hCaptcha_sitekey != 'changeme':
         captcha_data = form.get('h-captcha-response', type=str)
@@ -460,7 +460,7 @@ async def register_post():
             captcha_data is None or
             not await utils.validate_captcha(captcha_data)
         ):
-            return await flash('error', 'Captcha failed.', 'register')
+            return await flash('error', 'El captcha ha fallado.', 'register')
 
     # Usernames must:
     # - be within 2-15 characters in length
@@ -469,38 +469,38 @@ async def register_post():
     # - not already be taken by another player
     # check if username exists
     if not regexes.username.match(username):
-        return await flash('error', 'Invalid username syntax.', 'register')
+        return await flash('error', 'La sintaxis del nombre de usuario no es valida.', 'register')
 
     if '_' in username and ' ' in username:
-        return await flash('error', 'Username may contain "_" or " ", but not both.', 'register')
+        return await flash('error', 'El nombre de usuario puede contener "_" o " ", pero no ambos.', 'register')
 
     if username in glob.config.disallowed_names:
-        return await flash('error', 'Disallowed username; pick another.', 'register')
+        return await flash('error', 'Nombre de usuario no permitido; eliga otro.', 'register')
 
     if await glob.db.fetch('SELECT 1 FROM users WHERE name = %s', username):
-        return await flash('error', 'Username already taken by another user.', 'register')
+        return await flash('error', 'El nombre de usuario ya ha sido tomado por otro usuario.', 'register')
 
     # Emails must:
     # - match the regex `^[^@\s]{1,200}@[^@\s\.]{1,30}\.[^@\.\s]{1,24}$`
     # - not already be taken by another player
     if not regexes.email.match(email):
-        return await flash('error', 'Invalid email syntax.', 'register')
+        return await flash('error', 'La sintaxis del correo electrónico no es valida.', 'register')
 
     if await glob.db.fetch('SELECT 1 FROM users WHERE email = %s', email):
-        return await flash('error', 'Email already taken by another user.', 'register')
+        return await flash('error', 'El correo electrónico ya ha sido tomado por otro usuario.', 'register')
 
     # Passwords must:
     # - be within 8-32 characters in length
     # - have more than 3 unique characters
     # - not be in the config's `disallowed_passwords` list
     if not 8 <= len(passwd_txt) <= 32:
-        return await flash('error', 'Password must be 8-32 characters in length.', 'register')
+        return await flash('error', 'La clave debe tener entre 8 y 32 caracteres.', 'register')
 
     if len(set(passwd_txt)) <= 3:
-        return await flash('error', 'Password must have more than 3 unique characters.', 'register')
+        return await flash('error', 'La clave debe tener más de 3 caracteres únicos.', 'register')
 
     if passwd_txt.lower() in glob.config.disallowed_passwords:
-        return await flash('error', 'That password was deemed too simple.', 'register')
+        return await flash('error', 'Esa clave fue considerada demasiado simple.', 'register')
 
     # TODO: add correct locking
     # (start of lock)
@@ -557,7 +557,7 @@ async def register_post():
 @frontend.route('/logout')
 async def logout():
     if 'authenticated' not in session:
-        return await flash('error', "You can't logout if you aren't logged in!", 'login')
+        return await flash('error', "No puede cerrar sesión si no se encuentra logeado.", 'login')
 
     if glob.config.debug:
         log(f'{session["user_data"]["name"]} logged out.', Ansi.LGREEN)
@@ -567,7 +567,7 @@ async def logout():
     session.pop('user_data', None)
 
     # render login
-    return await flash('success', 'Successfully logged out!', 'login')
+    return await flash('success', 'Se ha cerrado la sesión con éxito.', 'login')
 
 # social media redirections
 
