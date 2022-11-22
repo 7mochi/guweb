@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% block title %} Beatmap {{ bmsId }} {% endblock %}
+
+{% block header %}
+<script src="/static/js/asserts/vue.js"></script>
+<script src="/static/js/asserts/vue-axios.js"></script>
+<script src="/static/js/asserts/day-js/dayjs.min.js"></script>
+<script src="/static/js/asserts/day-js/locale/es-mx.js"></script>
+<script src="/static/js/asserts/day-js/plugin/relativeTime.js"></script>
+
+<script>
+    let bmsId = "{{ bmsId }}";
+    let mode = "{{ mode }}";
+    let bmId = "{{ bmId }}";
+    let extraMode = "{{ extraMode }}";
+    let domain = "{{ domain() }}";
+    let beatmapDownloadMirror = "{{ beatmap_download_mirror() }}"
+
+    dayjs.extend(window.dayjs_plugin_relativeTime);
+    dayjs.locale("es-mx");
+</script>
+
+<link rel="stylesheet" href="/static/css/pages/leaderboard.css">
+<link rel="stylesheet" href="/static/css/pages/beatmapset.css">
+{% endblock %}
+
+{% block content %}
+<div id="app" :class="">
+    <div class="main-banner">
+        <div v-if="(error === true)" class="not-exist">
+            Beatmap no encontrado
+            <span class="not-exist-desc">Revisa la ID del beatmap o la URL</span>
+        </div>
+        <template v-else>
+            <div class="banner-overlay">
+                <section>
+                    <div class="map-metadata">
+                        <span class="map-title">
+                            <% currentMap?.title %>
+                        </span>
+                        <span class="map-diff">
+                            [<% currentMap?.version %>]
+                        </span>
+                        <span class="music-author">
+                            <% currentMap?.artist %>
+                        </span>
+                        <span class="map-creator">
+                            Mapeado por <b>
+                                <% currentMap?.creator %>
+                            </b>
+                        </span>
+                        <div class="map-parameters">
+                            AR: <% currentMap?.ar %> HP: <% currentMap?.hp %> OD: <% currentMap?.od %> CS: <%
+                                            currentMap?.cs %>
+                        </div>
+
+                        <div class="map-buttons">
+                            <button class="map-button"
+                                @click="window.open(`https://${beatmapDownloadMirror}/${currentMap?.set_id}`)">
+                                Descargar
+                            </button>
+                            <a :href="'osu://b/' + currentMap?.id">
+                                <button class="map-button">Descargar con direct</button>
+                            </a>
+
+                            <button class="map-button" v-if="currentMap?.status === 0" disabled="true">
+                                Pendiente
+                            </button>
+                            <button class="map-button ranked" v-else-if="currentMap?.status === 2" disabled="true">
+                                Rankeado
+                            </button>
+                            <button class="map-button ranked" v-else-if="currentMap?.status === 3" disabled="true">
+                                Aprobado
+                            </button>
+                            <button class="map-button ranked" v-else-if="currentMap?.status === 4" disabled="true">
+                                Calificado
+                            </button>
+                            <button class="map-button loved" v-else-if="currentMap?.status === 5" disabled="true">
+                                Amado
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section style="margin-left: auto; text-align: center; min-width: 30%;">
+                    <div class="diff-container">
+                        <div v-for="(item, index) in currentDiffs" class="diff">
+                            <div @click="changeDiff(item.id)"
+                                :class="'diff-button' + (currentMap?.id === item.id ? ' selected' : '')"
+                                :disabled="(currentMap?.id === item.id)">
+                                <span class="star-rating">
+                                    <% item.diff.toFixed(2) %>⭐
+                                </span>
+                                <span>
+                                    <% item.version %>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modes-container">
+                        <div class="modes-button" v-if="modes.includes(0)">
+                            <i :class="`mode-icon mode-osu ${(currentMap?.mode === 0 ? 'selected' : '')}`"
+                                @click="changeMode(0)"></i>
+                        </div>
+                        <div class="modes-button" v-if="modes.includes(1)">
+                            <i :class="`mode-icon mode-taiko ${(currentMap?.mode === 1 ? 'selected' : '')}`"
+                                @click="changeMode(1)"></i>
+                        </div>
+                        <div class="modes-button" v-if="modes.includes(2)">
+                            <i :class="`mode-icon mode-catch ${(currentMap?.mode === 2 ? 'selected' : '')}`"
+                                @click="changeMode(2)"></i>
+                        </div>
+                        <div class="modes-button" v-if="modes.includes(3)">
+                            <i :class="`mode-icon mode-mania ${(currentMap?.mode === 3 ? 'selected' : '')}`"
+                                @click="changeMode(3)"></i>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="image-banner" :style="`
+                background-image: url('https://assets.ppy.sh/beatmaps/${bmsId}/covers/cover@2x.jpg');
+                background-size:cover;
+                background-position:center;
+            `"></div>
+        </template>
+    </div>
+    <div class="main-block">
+        <div class="scores-tab">
+            <template v-if="error === false">
+                <div class="extra-modes">
+                    <button :class="`extra-modes-button ${(extraMode === 0 ? 'selected' : '')}`"
+                        @click="changeExtraMode(0)">
+                        Vanilla
+                    </button>
+                    <button :class="`extra-modes-button ${(extraMode === 4 ? 'selected' : '')}`"
+                        :disabled="(currentMap?.mode === 3)" @click="changeExtraMode(4)">
+                        Relax
+                    </button>
+                    <button :class="`extra-modes-button ${(extraMode === 8 ? 'selected' : '')}`"
+                        :disabled="(currentMap?.mode === 3 || currentMap?.mode === 2 || currentMap?.mode === 1)"
+                        @click="changeExtraMode(8)">
+                        Autoplay
+                    </button>
+                </div>
+
+                <template v-if="(isLoadingScores === true)">Cargando puntuaciones...</template>
+                <template v-else-if="!(currentScores) || currentScores.length < 1">
+                    Ninguna puntuación encontrada.
+                </template>
+                <template v-else>
+                    <div class="scores-container">
+                        <div class="score-index">Posición</div>
+                        <div class="score-player">Jugador(a)</div>
+                        <div class="score-grade">Rango</div>
+                        <div @click="changeSort('max_combo')"
+                            :class="`score-combo sortable-down ${(sort === 'max_combo' ? 'selected' : '')}`">
+                            Combo
+                        </div>
+                        <div @click="changeSort('pp')"
+                            :class="`score-pp sortable-down ${(sort === 'pp' ? 'selected' : '')}`">
+                            PP
+                        </div>
+                        <div @click="changeSort('acc')"
+                            :class="`score-acc sortable-down ${(sort === 'acc' ? 'selected' : '')}`">
+                            Precisión
+                        </div>
+                        <div @click="changeSort('score')"
+                            :class="`score-grade sortable-down ${(sort === 'score' ? 'selected' : '')}`">
+                            Puntuación
+                        </div>
+                        <div @click="changeSort('play_time')"
+                            :class="`score-grade sortable-down sortable-down-rounded ${(sort === 'play_time' ? 'selected' : '')}`">
+                            Tiempo</div>
+
+                        <template class="score" v-for="(score, index) in currentScores">
+                            <div class="score-index">#<% index + 1 %>
+                            </div>
+
+                            <div class="score-player" style="display: flex">
+                                <a style="margin-right: auto">
+                                    <div class="player-flag"
+                                        :style="`background-image:url('/static/images/flags/${score.country.toUpperCase()}.png'); margin-right:auto; margin-left:0.25rem`">
+                                        <div class="flag-dropdown">
+                                            <% flags[score.country.toUpperCase()] %>
+                                        </div>
+                                    </div>
+                                </a><a :href="`https://osu.${domain}/u/${score.userid}`" style="margin-right: auto">
+                                    <% score.player_name %>
+                                </a>
+                            </div>
+                            <div :class="`score-grade map-rank rank-${score.grade}`">
+                                <% score.grade.replace("SH", "S" ).replace("XH", "SS" ).replace("X", "SS" ) %>
+                            </div>
+
+                            <div :class="'score-combo' + (score.perfect === 1 ? ' max-combo' : '')">
+                                <% score.max_combo %>x
+                            </div>
+                            <div class="score-pp">
+                                <% Math.round(score.pp * 100) / 100 %>pp
+                            </div>
+                            <div class="score-acc">
+                                <% Math.round(score.acc * 100) / 100 %>%
+                            </div>
+                            <div class="score-score">
+                                <% new Intl.NumberFormat("es-mx").format(score.score) %>
+                            </div>
+                            <div class="score-time-since">
+                                <% dayjs().to(dayjs(score.play_time)) %>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </template>
+
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/asserts/vue-flags.js"></script>
+<script src="/static/js/pages/beatmapsets.js"></script>
+{% endblock %}

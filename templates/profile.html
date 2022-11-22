@@ -19,8 +19,9 @@
                     </div>
                     <div class="map-title-block">
                         <div class="map-title">
-                            <a class="beatmap-link">
-                                <% map.beatmap.artist %> - <% map.beatmap.title %> [<% map.beatmap.version %>] <!--<span v-if="map.mods != 0">+ <% modsStr(map.mods) %></span>-->
+                            <a class="beatmap-link"
+                                :href="`https://osu.${domain}/bmpset/${map.beatmap.set_id}/${modeIntToStr(map.beatmap.mode)}/${map.beatmap.id}`">
+                                <% map.beatmap.artist %> - <% map.beatmap.title %> [<% map.beatmap.version %>]
                             </a>
                         </div>
                         <div class="play-stats">
@@ -133,6 +134,19 @@
     var mode = '{{ mode }}';
     var mods = '{{ mods }}';
     var domain = "{{ domain() }}";
+
+    function modeIntToStr(integer) {
+        switch (integer) {
+            case 0:
+                return "std"
+            case 1:
+                return "taiko"
+            case 2:
+                return "catch"
+            case 3:
+                return "mania"
+        }
+    }
 </script>
 {% endblock %}
 

@@ -58,6 +58,10 @@ def captchaKey() -> str:
 def domain() -> str:
     return glob.config.domain
 
+@app.template_global()
+def beatmap_download_mirror() -> str:
+    return glob.config.beatmap_download_mirror
+
 from blueprints.frontend import frontend
 app.register_blueprint(frontend)
 
