@@ -224,19 +224,19 @@
     <div class="second-block">
         <div class="columns is-marginless two-sides">
             <div class="column is-one-third" v-cloak>
-                <!--<div class="header" v-if='data.stats[`rank_global_${modegulag}`] != -1'>
+                <div class="header" v-if='data.stats.out[modegulag].rank != -1'>
                     <div class="title">
                         <i class="fas fa-user-friends"></i> Rank
                     </div>
                 </div>
-                <div class="stats-block rank-block" v-if='data.stats[`rank_global_${modegulag}`] != -1'>
+                <div class="stats-block rank-block" v-if='data.stats.out[modegulag].rank != -1'>
                     <table class="is-striped">
                         <tbody>
                             <tr>
                                 <td>Global rank</td>
                                 <td class="right-aligned">
                                     <span id="global-rank">
-                                        <% '#' + data.stats[`rank_global_${modegulag}`] %>
+                                        <% '#' + data.stats.out[modegulag].rank %>
                                     </span>
                                 </td>
                             </tr>
@@ -244,13 +244,13 @@
                                 <td>Country rank</td>
                                 <td class="right-aligned">
                                     <span id="country-rank">
-                                        <% '#' + data.stats[`rank_country_${modegulag}`] %>
+                                        <% '#' + data.stats.out[modegulag].country_rank %>
                                     </span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>-->
+                </div>
                 <div class="header">
                     <div class="title">
                         <i class="fas fa-chart-pie"></i> Statistics
@@ -357,6 +357,7 @@
             </div>
             <div class="column">
                 {{ scores('Mejores puntuaciones', 'best')}}
+                {{ scores('Primeros lugares', 'first')}}
                 {{ scores('Puntuaciones recientes', 'recent')}}
                 {{ maps('Mapas más jugados', 'most')}}
             </div>
