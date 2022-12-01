@@ -30,7 +30,7 @@
                         </div>
                         <div class="map-date">
                             <time>
-                                <% timeago.format(map.play_time) %>
+                                <% dayjs().to(dayjs(map.play_time)) %>
                             </time>
                         </div>
                     </div>
@@ -128,7 +128,9 @@
 {% block header %}
 <script src="/static/js/asserts/vue.js"></script>
 <script src="/static/js/asserts/vue-axios.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
+<script src="/static/js/asserts/day-js/dayjs.min.js"></script>
+<script src="/static/js/asserts/day-js/locale/es-mx.js"></script>
+<script src="/static/js/asserts/day-js/plugin/relativeTime.js"></script>
 <link rel="stylesheet" href="/static/css/pages/profile.css">
 
 <script>
@@ -136,6 +138,9 @@
     var mode = '{{ mode }}';
     var mods = '{{ mods }}';
     var domain = "{{ domain() }}";
+
+    dayjs.extend(window.dayjs_plugin_relativeTime);
+    dayjs.locale("es-mx");
 
     function modeIntToStr(integer) {
         switch (integer) {
