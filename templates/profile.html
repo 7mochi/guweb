@@ -228,14 +228,14 @@
             <div class="column is-one-third" v-cloak>
                 <div class="header" v-if='data.stats.out[modegulag].rank != -1'>
                     <div class="title">
-                        <i class="fas fa-user-friends"></i> Rank
+                        <i class="fas fa-user-friends"></i> Clasificación
                     </div>
                 </div>
                 <div class="stats-block rank-block" v-if='data.stats.out[modegulag].rank != -1'>
                     <table class="is-striped">
                         <tbody>
                             <tr>
-                                <td>Global rank</td>
+                                <td>Clasificación global</td>
                                 <td class="right-aligned">
                                     <span id="global-rank">
                                         <% '#' + data.stats.out[modegulag].rank %>
@@ -243,7 +243,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Country rank</td>
+                                <td>Clasificación nacional</td>
                                 <td class="right-aligned">
                                     <span id="country-rank">
                                         <% '#' + data.stats.out[modegulag].country_rank %>
@@ -255,7 +255,7 @@
                 </div>
                 <div class="header">
                     <div class="title">
-                        <i class="fas fa-chart-pie"></i> Statistics
+                        <i class="fas fa-chart-pie"></i> Estadísticas
                     </div>
                 </div>
                 <div class="stats-block">
