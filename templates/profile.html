@@ -23,13 +23,14 @@
                                 :href="`https://osu.${domain}/bmpset/${map.beatmap.set_id}/${modeIntToStr(map.beatmap.mode)}/${map.beatmap.id}`">
                                 <% map.beatmap.artist %> - <% map.beatmap.title %> [<% map.beatmap.version %>]
                             </a>
+                            <span><% (modsStr(map.mods) ? '+' + modsStr(map.mods) : '') %></span>
                         </div>
                         <div class="play-stats">
                             <% addCommas(map.score) %> / <% map.max_combo %><b>x</b>
                         </div>
                         <div class="map-date">
                             <time>
-                                <% timeago.format(map.play_time) %>
+                                <% dayjs().to(dayjs(map.play_time)) %>
                             </time>
                         </div>
                     </div>
@@ -83,7 +84,8 @@
         </div>
     </div>
     <div v-if="data.maps.{{ id }}.out.length != 0" class="beatmaps">
-        <a v-for="(map, index) in data.maps.{{ id }}.out" class="beatmap-block">
+        <a v-for="(map, index) in data.maps.{{ id }}.out" class="beatmap-block" 
+            :href="`https://osu.${domain}/bmpset/${map.set_id}/${modeIntToStr(map.mode)}/${map.id}`">
             <div class="beatmap-preview"
                 v-bind:style='{ background: `url(https://assets.ppy.sh/beatmaps/${map.set_id}/covers/card.jpg)` }'>
             </div>
@@ -126,7 +128,9 @@
 {% block header %}
 <script src="/static/js/asserts/vue.js"></script>
 <script src="/static/js/asserts/vue-axios.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
+<script src="/static/js/asserts/day-js/dayjs.min.js"></script>
+<script src="/static/js/asserts/day-js/locale/es-mx.js"></script>
+<script src="/static/js/asserts/day-js/plugin/relativeTime.js"></script>
 <link rel="stylesheet" href="/static/css/pages/profile.css">
 
 <script>
@@ -134,6 +138,9 @@
     var mode = '{{ mode }}';
     var mods = '{{ mods }}';
     var domain = "{{ domain() }}";
+
+    dayjs.extend(window.dayjs_plugin_relativeTime);
+    dayjs.locale("es-mx");
 
     function modeIntToStr(integer) {
         switch (integer) {
@@ -226,14 +233,14 @@
             <div class="column is-one-third" v-cloak>
                 <div class="header" v-if='data.stats.out[modegulag].rank != -1'>
                     <div class="title">
-                        <i class="fas fa-user-friends"></i> Rank
+                        <i class="fas fa-user-friends"></i> Clasificación
                     </div>
                 </div>
                 <div class="stats-block rank-block" v-if='data.stats.out[modegulag].rank != -1'>
                     <table class="is-striped">
                         <tbody>
                             <tr>
-                                <td>Global rank</td>
+                                <td>Clasificación global</td>
                                 <td class="right-aligned">
                                     <span id="global-rank">
                                         <% '#' + data.stats.out[modegulag].rank %>
@@ -241,7 +248,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Country rank</td>
+                                <td>Clasificación nacional</td>
                                 <td class="right-aligned">
                                     <span id="country-rank">
                                         <% '#' + data.stats.out[modegulag].country_rank %>
@@ -253,7 +260,7 @@
                 </div>
                 <div class="header">
                     <div class="title">
-                        <i class="fas fa-chart-pie"></i> Statistics
+                        <i class="fas fa-chart-pie"></i> Estadísticas
                     </div>
                 </div>
                 <div class="stats-block">
