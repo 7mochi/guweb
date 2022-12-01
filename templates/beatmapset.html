@@ -168,6 +168,7 @@
                             :class="`score-grade sortable-down ${(sort === 'score' ? 'selected' : '')}`">
                             Puntuación
                         </div>
+                        <div class="score-mods">Mods</div>
                         <div @click="changeSort('play_time')"
                             :class="`score-grade sortable-down sortable-down-rounded ${(sort === 'play_time' ? 'selected' : '')}`">
                             Tiempo</div>
@@ -203,6 +204,9 @@
                             </div>
                             <div class="score-score">
                                 <% new Intl.NumberFormat("es-mx").format(score.score) %>
+                            </div>
+                            <div class="score-mods-used">
+                                <% modsStr(score.mods) %>
                             </div>
                             <div class="score-time-since">
                                 <% dayjs().to(dayjs(score.play_time)) %>

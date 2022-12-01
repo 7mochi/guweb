@@ -70,11 +70,11 @@ new Vue({
         LoadProfileData() {
             this.$set(this.data.stats, 'load', true);
             this.$axios.get(`${window.location.protocol}//api.${domain}/get_player_info`, {
-                    params: {
-                        id: this.userid,
-                        scope: 'all'
-                    }
-                })
+                params: {
+                    id: this.userid,
+                    scope: 'all'
+                }
+            })
                 .then(res => {
                     this.$set(this.data.stats, 'out', res.data.player.stats);
                     this.data.stats.load = false;
@@ -83,13 +83,13 @@ new Vue({
         LoadScores(sort) {
             this.$set(this.data.scores[`${sort}`], 'load', true);
             this.$axios.get(`${window.location.protocol}//api.${domain}/get_player_scores`, {
-                    params: {
-                        id: this.userid,
-                        mode: this.StrtoGulagInt(),
-                        scope: sort,
-                        limit: this.data.scores[`${sort}`].more.limit
-                    }
-                })
+                params: {
+                    id: this.userid,
+                    mode: this.StrtoGulagInt(),
+                    scope: sort,
+                    limit: this.data.scores[`${sort}`].more.limit
+                }
+            })
                 .then(res => {
                     this.data.scores[`${sort}`].out = res.data.scores;
                     this.data.scores[`${sort}`].load = false
@@ -99,12 +99,12 @@ new Vue({
         LoadMostBeatmaps() {
             this.$set(this.data.maps.most, 'load', true);
             this.$axios.get(`${window.location.protocol}//api.${domain}/get_player_most_played`, {
-                    params: {
-                        id: this.userid,
-                        mode: this.StrtoGulagInt(),
-                        limit: this.data.maps.most.more.limit
-                    }
-                })
+                params: {
+                    id: this.userid,
+                    mode: this.StrtoGulagInt(),
+                    limit: this.data.maps.most.more.limit
+                }
+            })
                 .then(res => {
                     this.data.maps.most.out = res.data.maps;
                     this.data.maps.most.load = false;
@@ -113,10 +113,10 @@ new Vue({
         },
         LoadUserStatus() {
             this.$axios.get(`${window.location.protocol}//api.${domain}/get_player_status`, {
-                    params: {
-                        id: this.userid
-                    }
-                })
+                params: {
+                    id: this.userid
+                }
+            })
                 .then(res => {
                     this.$set(this.data, 'status', res.data.player_status)
                 })
@@ -158,6 +158,70 @@ new Vue({
                 this.LoadMostBeatmaps();
             }
         },
+        modsStr(mod) {
+            const number_mods = [
+                { mod_text: "MR", mod_bit: 1 << 30 },
+                { mod_text: "V2", mod_bit: 1 << 29 },
+                { mod_text: "2K", mod_bit: 1 << 28 },
+                { mod_text: "3K", mod_bit: 1 << 27 },
+                { mod_text: "1K", mod_bit: 1 << 26 },
+                { mod_text: "KC", mod_bit: 1 << 25 },
+                { mod_text: "9K", mod_bit: 1 << 24 },
+                { mod_text: "TG", mod_bit: 1 << 23 },
+                { mod_text: "CN", mod_bit: 1 << 22 },
+                { mod_text: "RD", mod_bit: 1 << 21 },
+                { mod_text: "FI", mod_bit: 1 << 20 },
+                { mod_text: "8K", mod_bit: 1 << 19 },
+                { mod_text: "7K", mod_bit: 1 << 18 },
+                { mod_text: "6K", mod_bit: 1 << 17 },
+                { mod_text: "5K", mod_bit: 1 << 16 },
+                { mod_text: "4K", mod_bit: 1 << 15 },
+                { mod_text: "PF", mod_bit: 1 << 14 },
+                { mod_text: "AP", mod_bit: 1 << 13 },
+                { mod_text: "SO", mod_bit: 1 << 12 },
+                { mod_text: "AU", mod_bit: 1 << 11 },
+                { mod_text: "FL", mod_bit: 1 << 10 },
+                { mod_text: "NC", mod_bit: 1 << 9 },
+                { mod_text: "HT", mod_bit: 1 << 8 },
+                { mod_text: "RX", mod_bit: 1 << 7 },
+                { mod_text: "DT", mod_bit: 1 << 6 },
+                { mod_text: "SD", mod_bit: 1 << 5 },
+                { mod_text: "HR", mod_bit: 1 << 4 },
+                { mod_text: "HD", mod_bit: 1 << 3 },
+                { mod_text: "TD", mod_bit: 1 << 2 },
+                { mod_text: "EZ", mod_bit: 1 << 1 },
+                { mod_text: "NF", mod_bit: 1 }
+            ];
+
+            let mod_text = '';
+            let mod_num = 0;
+
+            if (!isNaN(mod)) {
+                mod_num = mod;
+                let bit = mod.toString(2);
+                let fullbit = "0000000000000000000000000000000".substring(bit.length) + bit;
+                for (let i = 30; i >= 0; i--) {
+                    if (fullbit[i] == 1) {
+                        mod_text += number_mods[i].mod_text;
+                    }
+                }
+            } else {
+                mod = mod.toUpperCase();
+                if (mod !== 'NM') {
+                    for (let i = 0; i < mod.length / 2; i++) {
+                        let find_mod = number_mods.find(m => m.mod_text == mod.substring(i * 2, i * 2 + 2));
+                        mod_text += find_mod.mod_text;
+                        mod_num |= find_mod.mod_bit;
+                    }
+                }
+            }
+
+            if (mod_text.includes('NC') && mod_text.includes('DT')) mod_text = mod_text.replace('DT', '');
+            if (mod_text.includes('PF') && mod_text.includes('SD')) mod_text = mod_text.replace('SD', '');
+            if (mod_num == 0) mod_text = '';
+
+            return mod_text;
+        },
         actionIntToStr(d) {
             switch (d.action) {
                 case 0:
@@ -174,12 +238,12 @@ new Vue({
                     return 'In Multiplayer: Song Select';
                 case 6:
                     return `Watching: 👓 ${d.info_text}`;
-                    // 7 not used
+                // 7 not used
                 case 8:
                     return `Testing: 🎾 ${d.info_text}`;
                 case 9:
                     return `Submitting: 🧼 ${d.info_text}`;
-                    // 10 paused, never used
+                // 10 paused, never used
                 case 11:
                     return 'Idle: 🏢 In multiplayer lobby';
                 case 12:
