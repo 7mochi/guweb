@@ -735,3 +735,7 @@ body::-webkit-scrollbar-thumb {
 [v-cloak] {
   display: none;
 }
+
+.table-responsive {
+  overflow-x: scroll;
+}
