@@ -1,0 +1,107 @@
+{% extends 'admin/base.html' %}
+{% block header %}
+<style>
+    .text-nowrap {
+        white-space: nowrap;
+    }
+
+    .gap-2 {
+        gap: 0.5em;
+    }
+</style>
+{% endblock %}
+{% block title %} Users {% endblock %}
+
+{% block content %}
+<form action="/admin/user/{{ search_data['id'] }}/update" method="POST" id="edit-user">
+    <div class="is-flex is-align-items-center is-flex-direction-column">
+        <article style="min-width: fit-content; width: 40vw;" class="panel is-primary">
+            <p class="panel-heading">
+                Editar datos de {{ search_data['name'] }}
+                </datos de>
+            <div class="panel-block columns" style="height: 50px;">
+                <div class="column is-one-quarter text-nowrap is-flex is-align-items-center gap-2">
+                    <i class="fas fa-id-card" aria-hidden="true"></i>
+                    <label class="label">Nombre de usuario</label>
+                </div>
+                <div class="column">
+                    <input name="edit-username" type="text" class="input" value="{{ search_data.name }}">
+                </div>
+            </div>
+            <div class="panel-block columns" style="height: 50px;">
+                <div class="column is-one-quarter text-nowrap is-flex is-align-items-center gap-2">
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                    <label class="label">Email</label>
+                </div>
+                <div class="column">
+                    <input name="edit-email" type="text" class="input" value="{{ search_data.email }}">
+                </div>
+            </div>
+            <div class="panel-block columns" style="height: 50px;">
+                <div class="column is-one-quarter text-nowrap is-flex is-align-items-center gap-2">
+                    <i class="fas fa-globe-americas" aria-hidden="true"></i>
+                    <label class="label">Pais</label>
+                </div>
+                <div class="column is-flex gap-2 is-align-items-center">
+                    <img id="country-preview" src="/static/images/flags/{{ search_data.country | upper }}.png"
+                        class="profile-flag"
+                        style="width: 25px; height: 17px; -webkit-box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.63); box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.2);">
+                    <div class="select">
+                        <select name="edit-country" id="edit-country" oninput="
+                            if (this.value.length === 2) {
+                                document.getElementById('country-preview').src = '/static/images/flags/' + this.value.toUpperCase() + '.png'
+                            }
+                        ">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-block columns" style="height: 50px;">
+                <div class="column is-one-quarter text-nowrap is-flex is-align-items-center gap-2">
+                    <i class="fas fa-key" aria-hidden="true"></i>
+                    <label class="label">Contraseña</label>
+                </div>
+                <div class="column">
+                    <input name="password" type="password" class="input" placeholder='Ingrese la nueva contraseña'>
+                </div>
+            </div>
+            <div class="panel-block columns" style="height: 50px;">
+                <div class="column is-one-quarter text-nowrap is-flex is-align-items-center gap-2">
+                    <i class="fas fa-ban" aria-hidden="true"></i>
+                    <label class="label">Estado de la cuenta</label>
+                </div>
+                <div class="column">
+                    <div class="select">
+                        <select name="action">
+                            <option value="unrestricted">Normal</option>
+                            {% if search_data.priv == 2 %}
+                            <option value="restricted" selected>Restringido</option>
+                            {% endif %}
+                            {% if search_data.priv != 2 %}
+                            <option value="restricted">Restringido</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-block pb-4">
+                <div style="margin-left: auto;"></div>
+                <button type="submit" form="edit-user" style="margin-right: 1em; width: 100px;"
+                    class="button is-primary">Actualizar</button>
+            </div>
+        </article>
+    </div>
+</form>
+
+<script src="/static/js/asserts/vue-flags.js"></script>
+<script>
+    var select = document.getElementById("edit-country");
+    for (const index in flags) {
+        var element = document.createElement("option");
+        element.textContent = flags[index];
+        element.value = index;
+        select.appendChild(element);
+    }
+    select.value = '{{ search_data.country | upper }}';
+</script>
+{% endblock content %}

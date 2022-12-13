@@ -1,0 +1,123 @@
+{% extends 'admin/base.html' %}
+{% block header %}
+<style>
+    .rounded {
+        border-radius: 0.5rem;
+    }
+
+    .d-flex {
+        display: flex;
+    }
+
+    .gap-2 {
+        grid-gap: 1em 1em;
+    }
+</style>
+{% endblock %}
+{% block title %} Users {% endblock %}
+
+{% block content %}
+<div class="columns is-marginless">
+    <div class="column is-paddingless flex-vcenter">
+        <h2 class="section-title">Usuarios</h2>
+        <p class="section-lead">Bienvenido al panel administrativo de usuarios</p>
+    </div>
+</div>
+<div class="card" style="margin-top: 20px">
+    <div class="columns">
+        <div class="column px-3 pb-2 pt-4 d-flex gap-2">
+            <input id="search-bar" class="input" v-model.trim="search"
+                placeholder='Buscar por nombre de usuario o email'>
+            <a class="button is-primary" onclick="searchUsers()">Buscar</a>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table card-table table-vcenter datatable rounded">
+            <thead>
+                <tr>
+                    <th class="has-text-right">ID</th>
+                    <th>Usuario</th>
+                    <th class="has-text-centered">Privilegios</th>
+                    <th class="has-text-centered">Ultimo login</th>
+                    <th class="has-text-centered">Registrado en</th>
+                    <th class="has-text-centered">Canal de cliente</th>
+                    <th class="has-text-centered">Email</th>
+                    <th class="has-text-centered">IP</th>
+                    <th class="has-text-centered"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in query_data %}
+                <tr>
+                    <td class="has-text-right">{{ i.id }}</td>
+                    <td class="td-truncate">
+                        <img src="/static/images/flags/{{ i.country|upper }}.png" class="profile-flag"
+                            style="width: 25px; height: 17px; -webkit-box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.63); box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.2);">
+                        <a class='ml-2' href="/u/{{ i.id }}">{{ i.name }}</a>
+                    </td>
+                    <td class="has-text-centered">
+                        {% for priv in (format_priv(i.priv)) %}
+                        <div class="tag
+                        {% if priv == 'Normal' %} is-disabled
+                        {% elif priv == 'Restricted' %} is-danger
+                        {% elif priv == 'Not verified or a bot' %} is-warning
+                        {% elif priv == 'Staff' %} is-info
+                        {% elif priv == 'Nominator' %} is-success
+                        {% else %} is-primary
+                        {% endif %}
+                        ">{{ priv }}</div>
+                        {% endfor %}
+                    </td>
+                    <td class="has-text-centered">
+                        {% if i.last_login %}{{ i.last_login }}
+                        {% else %} -
+                        {% endif %}
+                    </td>
+                    <td class="has-text-centered">{{ handle_timestamp(i.creation_time) }}</td>
+                    <td class="has-text-centered">
+                        {% if i.osu_stream %}
+                        <div class="tag
+                        {% if i.osu_stream == 'stable' %} is-disabled
+                        {% elif i.osu_stream == 'beta' %} is-info
+                        {% elif i.osu_stream == 'cuttingedge' %} is-primary
+                        {% elif i.osu_stream == 'tourney' %} is-dark
+                        {% elif i.osu_stream == 'fallback' %} is-warning
+                        {% else %} is-danger
+                        {% endif %}
+                        ">{{ i.osu_stream }}
+                        </div>
+                        {% else %} -
+                        {% endif %}
+                    </td>
+                    <td class="has-text-centered"><a href="mailto:{{ i.email }}">{{ i.email }}</a></td>
+                    <td class="has-text-centered">
+                        {% if i.ip != None %}
+                        <a target="_blank" href="https://whatismyipaddress.com/ip/{{ i.ip }}">
+                            {{ i.ip }}
+                        </a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td class="has-text-centered">
+                        <a class="btn" href="/admin/user/{{ i.id }}/edit">
+                            <i class="far fa-edit" aria-hidden="true"></i> {{ Editar }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $("#search-bar").keydown(function (e) {
+        if (e.keyCode === 13) {
+            searchUsers()
+        }
+    });  
+</script>
+<script src="/static/js/pages/admin/users.js?v={{ appVersion() }} " crossorigin="anonymous"></script>
+
+{% endblock content %}
