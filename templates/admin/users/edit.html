@@ -99,9 +99,9 @@
     for (const index in flags) {
         var element = document.createElement("option");
         element.textContent = flags[index];
-        element.value = index;
+        element.value = index.toLowerCase();
         select.appendChild(element);
     }
-    select.value = '{{ search_data.country | upper }}';
+    select.value = '{{ search_data.country }}'.toLowerCase();
 </script>
 {% endblock content %}
